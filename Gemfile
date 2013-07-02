@@ -5,12 +5,17 @@ gem 'rails', '4.0.0'
 
 group :development, :test do
   gem 'sqlite3', '1.3.7'
-  gem 'rspec-rails', '2.13.1'
+  gem 'rspec-rails', '2.13.1' # Test framework, instead of Test::Unit
+  gem 'guard-rspec', '2.5.0' # Automatically runs tests, needs gem 'growl' below in test
+  gem 'spork-rails', github: 'railstutorial/spork-rails' # Spork is testing server for fast startup
+  gem 'guard-spork', '1.5.0'
+  gem 'childprocess', '0.3.6'
 end
 
 group :test do
   gem 'selenium-webdriver', '2.0.0'
   gem 'capybara', '2.1.0'
+  gem 'growl', '1.0.3' #Used w/ Guard above
 end
 
 gem 'sass-rails', '4.0.0'
