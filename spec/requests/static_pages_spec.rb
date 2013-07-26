@@ -31,6 +31,51 @@ describe "Static pages" do
 
     it_should_behave_like "all static pages"
     it { should_not have_title('| Home') }
+
+    describe "for signed-in users" do
+      let(:user) { FactoryGirl.create(:user) }
+      #let(:post1) { FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum") }
+      #let(:post2) { FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet") }
+      before do
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        sign_in user
+        visit root_path
+      end
+
+      it "should render the user's feed" do
+        user.feed.each do |item|
+          expect(page).to have_selector("li##{item.id}", text: item.content)
+        end
+      end
+      describe "should display the correct count of microposts" do
+        describe "for one micropost" do
+          before do 
+            user.microposts.destroy(user.microposts.first) 
+            visit root_path
+          end
+          it { should_not have_content("#{user.microposts.count} microposts") }
+          it { should have_content("#{user.microposts.count} micropost") }
+        end
+        describe "for other than one micropost" do
+          it { should have_content("#{user.microposts.count} microposts") }
+        end
+      end
+      describe "should have paginated microposts" do
+        before do 
+          35.times { FactoryGirl.create(:micropost, user: user, content: Faker::Lorem.sentence(5)) }
+          visit root_path
+        end
+        describe "pagination" do
+          it { should have_selector('div.pagination') }
+          it "should list each micropost" do
+            user.feed.paginate(page: 1).each do |micropost|
+              expect(page).to have_selector('li', text: micropost.content)
+            end
+          end
+        end
+      end
+    end
   end
 
   describe "Help page" do
